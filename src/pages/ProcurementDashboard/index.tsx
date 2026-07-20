@@ -1,5 +1,4 @@
 import React from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import { useRealtimeTable } from '@/hooks/useRealtimeTable';
 import { useNotifications } from '@/hooks/useNotifications';
 import {
@@ -21,7 +20,7 @@ import { RefreshCw } from 'lucide-react';
 // Components
 import GovernmentRecommendationCard from '@/components/procurement/GovernmentRecommendationCard';
 import SupplierCards from '@/components/procurement/SupplierCards';
-import SupplierRanking from '@/components/procurement/SupplierRanking';
+import SupplierRankingComponent from '@/components/procurement/SupplierRanking';
 import PurchaseOrderTable from '@/components/procurement/PurchaseOrderTable';
 import CompatibilityPanel from '@/components/procurement/CompatibilityPanel';
 import ContractTable from '@/components/procurement/ContractTable';
@@ -30,7 +29,6 @@ import NotificationPanel from '@/components/procurement/NotificationPanel';
 import { useProcurementStore } from '@/store/useProcurementStore';
 
 export const ProcurementDashboard: React.FC = () => {
-  const { user } = useAuth();
   const { isSyncing, setSyncing, setGlobalError, globalError } = useProcurementStore();
   
   // Real-time hooks
@@ -144,7 +142,7 @@ export const ProcurementDashboard: React.FC = () => {
           {/* Section 3: AI Rankings & Assistant Split */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
-              <SupplierRanking rankings={rankings || []} isLoading={isRankingsLoading} />
+              <SupplierRankingComponent rankings={rankings || []} isLoading={isRankingsLoading} />
             </div>
             <div>
               <ProcurementAssistant />

@@ -1,10 +1,10 @@
 import React from 'react';
-import type { SupplierRanking } from '@/types/procurement';
+import type { SupplierRanking as SupplierRankingType } from '@/types/procurement';
 import { Award, Target, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface Props {
-  rankings: SupplierRanking[];
+  rankings: SupplierRankingType[];
   isLoading?: boolean;
 }
 

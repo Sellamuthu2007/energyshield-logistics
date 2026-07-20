@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Contract } from '@/types/procurement';
-import { FileSignature, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { FileSignature } from 'lucide-react';
 
 interface Props {
   contracts: Contract[];

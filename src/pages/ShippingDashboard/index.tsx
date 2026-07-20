@@ -1,5 +1,4 @@
 import React from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import { useRealtimeTable } from '@/hooks/useRealtimeTable';
 import { useShippingStore } from '@/store/useShippingStore';
 import {
@@ -24,7 +23,6 @@ import RefineryImpactPanel from '@/components/shipping/RefineryImpactPanel';
 import NotificationCenter from '@/components/shipping/NotificationCenter';
 
 export const ShippingDashboard: React.FC = () => {
-  const { user } = useAuth();
   const { isSyncing, setSyncing, globalError, setGlobalError } = useShippingStore();
 
   // Subscriptions to keep dashboard live with exact requested table names
@@ -38,8 +36,8 @@ export const ShippingDashboard: React.FC = () => {
   const { data: queue, isLoading: isQueueLoading, refetch: refetchQueue } = useShipmentQueue();
   const { data: shipments, isLoading: isShipmentsLoading, refetch: refetchShipments } = useShipments();
   const { data: ports, isLoading: isPortsLoading, refetch: refetchPorts } = usePorts();
-  const { data: weather, isLoading: isWeatherLoading, refetch: refetchWeather } = useWeatherAlerts();
-  const { data: routes, isLoading: isRoutesLoading, refetch: refetchRoutes } = useRouteRecommendations();
+  const { data: weather, refetch: refetchWeather } = useWeatherAlerts();
+  const { data: routes, refetch: refetchRoutes } = useRouteRecommendations();
 
   const handleManualRefresh = async () => {
     setSyncing(true);

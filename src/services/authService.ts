@@ -43,7 +43,7 @@ export async function signInWithEmail(email: string, password: string) {
     }
     
     // After sign up, data contains the new user
-    data = signUpResponse.data;
+    data = signUpResponse.data as typeof data;
     
     // Small delay to allow the database trigger to create the profile
     await new Promise(resolve => setTimeout(resolve, 1000));

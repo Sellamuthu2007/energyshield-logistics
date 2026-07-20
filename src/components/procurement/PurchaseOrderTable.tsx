@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { PurchaseOrder } from '@/types/procurement';
 import { ShoppingCart, Send, FileText, FileClock } from 'lucide-react';
 

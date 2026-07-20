@@ -4,7 +4,7 @@ import { Bell } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const NotificationCenter: React.FC = () => {
-  const { data: notifications, isLoading } = useNotifications('shipping');
+  const { data: notifications, isLoading } = useNotifications();
 
   if (isLoading) {
     return <div className="h-64 border border-brand-border bg-brand-card rounded p-4 animate-pulse" />;

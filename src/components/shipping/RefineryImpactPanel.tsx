@@ -1,7 +1,8 @@
 import React from 'react';
 import { useSupabaseQuery } from '@/hooks/useSupabaseQuery';
 import { supabase } from '@/lib/supabaseClient';
-import type { RefineryImpact } from '@/types/shipping';
+
+
 import { Activity, Bell } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { createNotification } from '@/services/notificationService';

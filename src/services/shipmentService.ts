@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import type { Shipment, Vessel, ShipmentEvent } from '@/types/shipping';
+import type { Shipment } from '@/types/shipping';
 import type { PurchaseOrder } from '@/types/procurement';
 import { createShipmentNotification } from './notificationService';
 

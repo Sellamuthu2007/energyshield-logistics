@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ProcurementSupplier } from '@/types/procurement';
-import { Shield, Clock, TrendingUp, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Clock, TrendingUp, CheckCircle, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface Props {

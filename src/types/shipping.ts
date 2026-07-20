@@ -70,3 +70,14 @@ export interface ShipmentNotification {
   is_read: boolean;
   created_at: string;
 }
+
+export interface RefineryImpact {
+  id: string;
+  refinery_name: string;
+  shipment_id: string;
+  expected_delay: string;
+  inventory_remaining: string;
+  ai_assessment: 'Low Risk' | 'Medium Risk' | 'Critical';
+  created_at: string;
+  shipments?: { po_number: string };
+}
