@@ -1,0 +1,22 @@
+[api]
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+
+[db]
+major_version = 15
+
+[db.pooler]
+enabled = true
+pool_mode = "transaction"
+
+[auth]
+enabled = true
+
+[edge_runtime]
+enabled = true
+policy = "per_worker"
+
+[functions]
+enabled = true
+verify_jwts = true

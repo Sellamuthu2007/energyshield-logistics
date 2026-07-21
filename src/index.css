@@ -49,3 +49,90 @@ body {
 .leaflet-container {
   background: #0b0e14 !important;
 }
+
+/* Login page styles */
+.glass-panel {
+  background-color: rgba(18, 23, 33, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  z-index: 10;
+}
+
+.cyber-input {
+  background-color: #0B101A;
+  border: 1px solid #2A3341;
+  transition: all 0.2s ease-in-out;
+}
+
+.cyber-input:focus {
+  border-color: #00e0ff;
+  box-shadow: 0 0 15px rgba(0, 224, 255, 0.15);
+  outline: none;
+}
+
+.btn-primary-gradient {
+  background: linear-gradient(135deg, #00e0ff 0%, #7000ff 100%);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary-gradient:hover {
+  box-shadow: 0 0 20px rgba(0, 224, 255, 0.3);
+}
+
+.btn-primary-gradient:active {
+  transform: scale(0.98);
+}
+
+.btn-primary-gradient::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  0% { left: -100%; }
+  20% { left: 200%; }
+  100% { left: 200%; }
+}
+
+.auth-bg {
+  background-color: #0e131d;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center center;
+}
+
+.portal-card {
+  transition: all 0.3s ease;
+}
+
+.portal-card:hover {
+  background-color: rgba(48, 53, 64, 0.5);
+  border-color: #00e0ff;
+  box-shadow: 0 0 15px rgba(0, 224, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.portal-card:hover .material-symbols-outlined {
+  color: #00e0ff;
+}

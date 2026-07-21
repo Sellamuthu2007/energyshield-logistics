@@ -19,11 +19,20 @@ export const RefineryImpactPanel: React.FC = () => {
   }
 
   const handleNotifyRefinery = async (impact: any) => {
-    await createNotification(
-      'refinery',
-      'Shipment Delay Warning',
-      `Delay expected for PO ${impact.shipments?.po_number}. Expected delay: ${impact.expected_delay}. Impact: ${impact.ai_assessment}.`
-    );
+    const { error } = await supabase.functions.invoke('forward-shipment', {
+      body: { shipmentId: impact.shipment_id },
+    });
+
+    if (error) {
+      console.error('Failed to notify refinery via Edge Function:', error);
+      // Fallback: create notification directly
+      await createNotification(
+        'refinery',
+        'Shipment Delay Warning',
+        `Delay expected for PO ${impact.shipments?.po_number}. Expected delay: ${impact.expected_delay}. Impact: ${impact.ai_assessment}.`
+      );
+    }
+
     alert('Refinery successfully notified!');
   };
 

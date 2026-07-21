@@ -3,8 +3,10 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import PublicLayout from '@/layouts/PublicLayout';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import ProtectedRoute from './ProtectedRoute';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import LandingPage from '@/pages/Landing';
 import LoginPage from '@/pages/Login';
+import NotFoundPage from '@/pages/NotFound';
 import GovernmentDashboard from '@/pages/GovernmentDashboard';
 import ProcurementDashboard from '@/pages/ProcurementDashboard';
 import ShippingDashboard from '@/pages/ShippingDashboard';
@@ -24,7 +26,9 @@ export const AppRoutes: React.FC = () => {
       <Route
         element={
           <ProtectedRoute>
-            <DashboardLayout />
+            <ErrorBoundary>
+              <DashboardLayout />
+            </ErrorBoundary>
           </ProtectedRoute>
         }
       >
@@ -70,8 +74,11 @@ export const AppRoutes: React.FC = () => {
         />
       </Route>
 
-      {/* Catch-all redirect to Landing */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* 404 */}
+      <Route path="/404" element={<NotFoundPage />} />
+
+      {/* Catch-all redirect */}
+      <Route path="*" element={<Navigate to="/404" replace />} />
     </Routes>
   );
 };

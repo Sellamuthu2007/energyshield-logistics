@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { ShieldCheck, ShieldAlert } from 'lucide-react';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export const PublicLayout: React.FC = () => {
   return (
@@ -38,7 +39,9 @@ export const PublicLayout: React.FC = () => {
 
       {/* Main Content Area */}
       <main className="flex-1">
-        <Outlet />
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
       </main>
 
       {/* Footer */}

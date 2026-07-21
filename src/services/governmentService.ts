@@ -96,24 +96,28 @@ export async function getGovernmentRecommendations(): Promise<GovernmentRecommen
 }
 
 export async function approveAndForwardRecommendation(id: string, userId: string): Promise<void> {
-  const { error, data } = await supabase
-    .from('government_recommendations')
-    .update({ status: 'forwarded', approved_by: userId })
-    .eq('id', id)
-    .select()
-    .single();
+  const { error } = await supabase.functions.invoke('forward-recommendation', {
+    body: { recommendationId: id },
+  });
 
   if (error) {
-    console.error('DB update failed for recommendation approval:', error);
-    throw error;
-  }
+    console.error('Edge Function call failed for recommendation approval:', error);
+    // Fallback: do it directly
+    const { error: dbError, data } = await supabase
+      .from('government_recommendations')
+      .update({ status: 'forwarded', approved_by: userId })
+      .eq('id', id)
+      .select()
+      .single();
 
-  // After approving, create a notification for procurement
-  if (data) {
-    await createNotification(
-      'procurement',
-      'New Government Recommendation Forwarded',
-      `A recommendation for "${data.title}" has been approved by the Government and forwarded to Procurement.`
-    );
+    if (dbError) throw dbError;
+
+    if (data) {
+      await createNotification(
+        'procurement',
+        'New Government Recommendation Forwarded',
+        `A recommendation for "${data.title}" has been approved by the Government and forwarded to Procurement.`
+      );
+    }
   }
 }

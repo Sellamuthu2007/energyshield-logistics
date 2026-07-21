@@ -39,7 +39,7 @@ export const WorldMap: React.FC<WorldMapProps> = ({ suppliers = [] }) => {
           />
 
           {suppliers.map((country) => {
-            const coords = country.coordinates || [20, 0];
+            const coords: [number, number] = country.coordinates || [20, 0];
             const color = getMarkerColor(country.risk_level);
 
             return (

@@ -136,55 +136,42 @@ export async function createPurchaseOrder(po: Partial<PurchaseOrder>, userId: st
 import { addInventory } from './inventoryService';
 
 export async function approvePurchaseOrder(id: string): Promise<void> {
-  const { error, data } = await supabase
-    .from('purchase_orders')
-    .update({ status: 'Approved' })
-    .eq('id', id)
-    .select()
-    .single();
+  const { error } = await supabase.functions.invoke('forward-purchase-order', {
+    body: { purchaseOrderId: id },
+  });
 
   if (error) {
-    console.error('Error approving PO:', error);
-    throw error;
-  }
-  
-  if (data) {
-    // 1. Notify
-    await createNotification(
-      'procurement',
-      'Purchase Order Approved',
-      `PO ${data.po_number} has been approved.`
-    );
-    
-    // 2. Automatically update inventory based on PO destination and quantity
-    try {
-      await addInventory(data.destination_refinery, data.quantity);
-    } catch (invError) {
-      console.error('Failed to update inventory downstream:', invError);
-      // We don't throw here to avoid failing the PO approval if inventory sync fails temporarily,
-      // but in a strict transactional system this should be atomic.
+    console.error('Edge Function call failed for PO approval:', error);
+    // Fallback: do it directly
+    const { error: dbError, data } = await supabase
+      .from('purchase_orders')
+      .update({ status: 'Approved' })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (dbError) throw dbError;
+
+    if (data) {
+      await createNotification(
+        'procurement',
+        'Purchase Order Approved',
+        `PO ${data.po_number} has been approved.`
+      );
+      try {
+        await addInventory(data.destination_refinery, data.quantity);
+      } catch (invError) {
+        console.error('Failed to update inventory downstream:', invError);
+      }
+      await createNotification(
+        'shipping',
+        'New Shipment Tracked',
+        `Shipment for PO ${data.po_number} has been forwarded to the Shipping Dashboard.`
+      );
     }
   }
 }
 
 export async function trackShipment(id: string): Promise<void> {
-  const { error, data } = await supabase
-    .from('purchase_orders')
-    .update({ status: 'Tracked' })
-    .eq('id', id)
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error initiating tracking:', error);
-    throw error;
-  }
-  
-  if (data) {
-    await createNotification(
-      'shipping',
-      'New Shipment Tracked',
-      `Shipment for PO ${data.po_number} has been forwarded to the Shipping Dashboard.`
-    );
-  }
+  await approvePurchaseOrder(id);
 }

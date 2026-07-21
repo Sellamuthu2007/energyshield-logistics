@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, Send, X } from 'lucide-react';
+import { supabase } from '@/lib/supabaseClient';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -21,34 +22,22 @@ export const OperationsAssistant: React.FC = () => {
   ]);
   const [input, setInput] = useState('');
 
-  const handleSend = (text: string) => {
+  const handleSend = async (text: string) => {
     const msg = text || input;
     if (!msg.trim()) return;
 
     setMessages(prev => [...prev, { role: 'user', text: msg }]);
     setInput('');
 
-    setTimeout(() => {
-      const response = generateResponse(msg);
-      setMessages(prev => [...prev, { role: 'assistant', text: response }]);
-    }, 800);
-  };
+    const { data, error } = await supabase.functions.invoke('generate-ai-insight', {
+      body: { dashboard: 'refinery', prompt: msg },
+    });
 
-  const generateResponse = (query: string): string => {
-    const q = query.toLowerCase();
-    if (q.includes('inventory')) {
-      return 'Current aggregate inventory across all refineries is 6.97M barrels. Mumbai Refinery has 9 days of cover (lowest), while Jamnagar has 12 days. I recommend monitoring Visakhapatnam closely as it has only 8 days remaining.';
-    }
-    if (q.includes('risk') || q.includes('critical')) {
-      return 'Visakhapatnam Refinery has the highest risk profile with only 8 days of inventory cover and incoming shipment expected in 3 days. Mumbai Refinery is at medium risk with 9 days cover and 5 days until next shipment.';
-    }
-    if (q.includes('maintenance')) {
-      return 'There are 4 maintenance schedules across the network. CDU-1 at Mumbai is due in 30 days (72h downtime). FCC-2 at Paradip is due in 45 days. HT-3 at Jamnagar is currently in progress. VDU-1 at Vadinar is due in 60 days.';
-    }
-    if (q.includes('production') || q.includes('mix')) {
-      return 'Based on current demand forecasts, Mumbai Refinery should consider shifting 3% from petrol to ATF for the upcoming holiday season. Jamnagar and Paradip refineries are operating at optimal mix.';
-    }
-    return 'I can help with inventory status, production risks, maintenance schedules, and production optimization. Please select a suggested question or type your query above.';
+    const response = error
+      ? 'I can help with inventory status, production risks, maintenance schedules, and production optimization. Please select a suggested question or type your query above.'
+      : data?.data?.insight_text || 'I am unable to process that request at this time.';
+
+    setMessages(prev => [...prev, { role: 'assistant', text: response }]);
   };
 
   return (

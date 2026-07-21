@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Bot, Send, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { supabase } from '@/lib/supabaseClient';
 
 const MOCK_CHAT = [
   { role: 'assistant', content: 'Hello Procurement Officer. I am currently monitoring 6 global suppliers and 3 live government recommendations. How can I assist you with your purchasing decisions today?' },
@@ -10,25 +11,24 @@ export const ProcurementAssistant: React.FC = () => {
   const [messages, setMessages] = useState(MOCK_CHAT);
   const [input, setInput] = useState('');
 
-  const handleSend = (e: React.FormEvent) => {
+  const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 
     const userMsg = { role: 'user', content: input };
     setMessages((prev) => [...prev, userMsg]);
+    const query = input;
     setInput('');
 
-    // Mock AI response
-    setTimeout(() => {
-      let reply = 'I recommend executing a spot purchase from the UAE to fulfill immediate Kochi Refinery requirements.';
-      if (input.toLowerCase().includes('russia')) {
-        reply = 'Russian Crude (Urals) has a 94% compatibility with Paradip Refinery, but carries high geopolitical risk. Government approval is pending.';
-      } else if (input.toLowerCase().includes('cheapest')) {
-        reply = 'Currently, Russian Urals is the cheapest at $65.20/bbl, followed by Iraq Basra Heavy at $68.90/bbl.';
-      }
-      
-      setMessages((prev) => [...prev, { role: 'assistant', content: reply }]);
-    }, 1000);
+    const { data, error } = await supabase.functions.invoke('generate-ai-insight', {
+      body: { dashboard: 'procurement', prompt: query },
+    });
+
+    const reply = error
+      ? 'I recommend executing a spot purchase from the UAE to fulfill immediate Kochi Refinery requirements.'
+      : data?.data?.insight_text || 'I am unable to process that request at this time.';
+
+    setMessages((prev) => [...prev, { role: 'assistant', content: reply }]);
   };
 
   return (
