@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { UserRole } from '@/constants/roles';
-import { fetchProfile, signInWithEmail, signOut } from '@/services/authService';
+import { fetchProfile, signInWithEmail, signUpUser, signOut } from '@/services/authService';
 import type { UserProfile } from '@/services/authService';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -10,6 +10,7 @@ interface AuthContextType {
   role: UserRole | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error: any }>;
+  signup: (email: string, password: string, fullName: string, organization: string, role: UserRole) => Promise<{ success: boolean; error: any }>;
   logout: () => Promise<void>;
 }
 
@@ -22,7 +23,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loadUserProfile = async (userId: string) => {
     const userProfile = await fetchProfile(userId);
-    setProfile(userProfile);
+    if (userProfile) {
+      setProfile(userProfile);
+    }
   };
 
   useEffect(() => {
@@ -32,6 +35,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (session?.user) {
           setUser(session.user);
           await loadUserProfile(session.user.id);
+        } else {
+          // Check local stored demo session for seamless persistence across page reloads
+          const storedDemoSession = localStorage.getItem('energyshield_demo_session');
+          if (storedDemoSession) {
+            const parsed = JSON.parse(storedDemoSession);
+            setUser(parsed.user);
+            setProfile(parsed.profile);
+          }
         }
       } catch (err) {
         console.error('Error during initial session loading:', err);
@@ -46,9 +57,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (session?.user) {
         setUser(session.user);
         await loadUserProfile(session.user.id);
-      } else {
-        setUser(null);
-        setProfile(null);
       }
       setIsLoading(false);
     });
@@ -67,6 +75,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       setUser(res.user);
       setProfile(res.profile);
+
+      // Persist demo session to local storage if not logged in via standard Supabase JWT
+      localStorage.setItem('energyshield_demo_session', JSON.stringify({ user: res.user, profile: res.profile }));
+
+      return { success: true, error: null };
+    } catch (error) {
+      return { success: false, error };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signup = async (
+    email: string,
+    password: string,
+    fullName: string,
+    organization: string,
+    role: UserRole
+  ) => {
+    setIsLoading(true);
+    try {
+      const res = await signUpUser(email, password, fullName, organization, role);
+      if (res.error) {
+        return { success: false, error: res.error };
+      }
+      setUser(res.user);
+      setProfile(res.profile);
+
+      localStorage.setItem('energyshield_demo_session', JSON.stringify({ user: res.user, profile: res.profile }));
+
       return { success: true, error: null };
     } catch (error) {
       return { success: false, error };
@@ -79,6 +117,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       await signOut();
+      localStorage.removeItem('energyshield_demo_session');
       setUser(null);
       setProfile(null);
     } finally {
@@ -89,7 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const role = profile ? profile.role : null;
 
   return (
-    <AuthContext.Provider value={{ user, profile, role, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, profile, role, isLoading, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );

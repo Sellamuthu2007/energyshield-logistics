@@ -1,6 +1,7 @@
 import React from 'react';
 import { useRealtimeTable } from '@/hooks/useRealtimeTable';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useAuth } from '@/hooks/useAuth';
 import {
   useForwardedRecommendations,
   useProcurementSuppliers,
@@ -13,8 +14,10 @@ import {
   acceptRecommendation,
   rejectRecommendation,
   approvePurchaseOrder,
-  trackShipment
+  trackShipment,
+  createPurchaseOrder
 } from '@/services/procurementService';
+import type { PurchaseOrder } from '@/types/procurement';
 import { RefreshCw } from 'lucide-react';
 
 // Components
@@ -29,6 +32,7 @@ import NotificationPanel from '@/components/procurement/NotificationPanel';
 import { useProcurementStore } from '@/store/useProcurementStore';
 
 export const ProcurementDashboard: React.FC = () => {
+  const { user } = useAuth();
   const { isSyncing, setSyncing, setGlobalError, globalError } = useProcurementStore();
   
   // Real-time hooks
@@ -70,18 +74,28 @@ export const ProcurementDashboard: React.FC = () => {
 
   const handleAcceptRecommendation = async (id: string) => {
     await acceptRecommendation(id);
+    refetchRecs();
   };
 
   const handleRejectRecommendation = async (id: string) => {
     await rejectRecommendation(id);
+    refetchRecs();
   };
 
   const handleApprovePO = async (id: string) => {
     await approvePurchaseOrder(id);
+    refetchOrders();
   };
 
   const handleTrackShipment = async (id: string) => {
     await trackShipment(id);
+    refetchOrders();
+  };
+
+  const handleCreatePO = async (po: Partial<PurchaseOrder>) => {
+    if (!user) return;
+    await createPurchaseOrder(po, user.id);
+    refetchOrders();
   };
 
   const isPageLoading = isRecsLoading || isSuppliersLoading || isOrdersLoading || isSyncing;
@@ -91,8 +105,12 @@ export const ProcurementDashboard: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-brand-border/40 pb-4">
         <div>
-          <h2 className="text-xl font-extrabold text-white uppercase tracking-wider">
-            AI Procurement Decision Center
+          <h2 className="text-xl font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+            <span>AI Procurement Decision Center</span>
+            <span className="flex items-center space-x-1 text-[9px] bg-brand-teal/10 border border-brand-teal/30 px-2 py-0.5 rounded text-brand-teal">
+              <span className="h-1.5 w-1.5 rounded-full bg-brand-teal animate-pulse" />
+              <span>CONNECTED DESK</span>
+            </span>
           </h2>
           <p className="text-xs text-brand-muted mt-0.5">
             Supplier ranking, compatibility analysis, and secure purchase order execution.
@@ -162,6 +180,7 @@ export const ProcurementDashboard: React.FC = () => {
                 orders={orders || []}
                 onApprove={handleApprovePO}
                 onTrack={handleTrackShipment}
+                onCreatePO={handleCreatePO}
                 isLoading={isOrdersLoading}
               />
             </div>

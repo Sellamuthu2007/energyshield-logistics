@@ -5,7 +5,10 @@ import {
   getAIRiskInsights,
   getGovernmentAlerts,
   getStrategicPetroleumReserve,
-  getGovernmentRecommendations
+  getGovernmentRecommendations,
+  getOperationalEvents,
+  getDataSourceHealth,
+  fetchLiveOpenMeteoWeather
 } from '@/services/governmentService';
 
 export function useNationalRiskScore() {
@@ -30,4 +33,16 @@ export function useStrategicPetroleumReserve() {
 
 export function useGovernmentRecommendations() {
   return useSupabaseQuery(['government_recommendations'], getGovernmentRecommendations);
+}
+
+export function useOperationalEvents() {
+  return useSupabaseQuery(['operational_events'], getOperationalEvents);
+}
+
+export function useDataSourceHealth() {
+  return useSupabaseQuery(['data_source_health'], getDataSourceHealth);
+}
+
+export function useLiveWeather() {
+  return useSupabaseQuery(['open_meteo_weather'], fetchLiveOpenMeteoWeather);
 }

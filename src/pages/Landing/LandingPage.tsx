@@ -109,6 +109,12 @@ export const LandingPage: React.FC = () => {
                 <span>Access Security Console</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
+              <Link
+                to="/signup"
+                className="flex items-center justify-center space-x-2 rounded border border-brand-primary/40 bg-brand-primary/10 px-6 py-3 text-sm font-semibold text-brand-primary hover:bg-brand-primary/20 transition-colors"
+              >
+                <span>Register Operative Account</span>
+              </Link>
               <a
                 href="#features"
                 className="flex items-center justify-center rounded border border-brand-border bg-brand-card px-6 py-3 text-sm font-semibold text-brand-text hover:bg-[#1a2130] transition-colors"

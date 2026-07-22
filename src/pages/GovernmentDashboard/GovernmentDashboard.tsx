@@ -7,7 +7,9 @@ import {
   useAIRiskInsights,
   useGovernmentAlerts,
   useStrategicPetroleumReserve,
-  useGovernmentRecommendations
+  useGovernmentRecommendations,
+  useOperationalEvents,
+  useDataSourceHealth
 } from '@/hooks/useGovernmentData';
 import { approveAndForwardRecommendation } from '@/services/governmentService';
 import RiskCards from '@/components/government/RiskCards';
@@ -16,6 +18,8 @@ import AIRiskPanel from '@/components/government/AIRiskPanel';
 import AlertList from '@/components/government/AlertList';
 import ReserveCard from '@/components/government/ReserveCard';
 import RecommendationPanel from '@/components/government/RecommendationPanel';
+import OperationalTimeline from '@/components/government/OperationalTimeline';
+import DataSourceHealth from '@/components/government/DataSourceHealth';
 import { RefreshCw } from 'lucide-react';
 
 export const GovernmentDashboard: React.FC = () => {
@@ -28,6 +32,8 @@ export const GovernmentDashboard: React.FC = () => {
   const { data: alerts, isLoading: isAlertsLoading, refetch: refetchAlerts } = useGovernmentAlerts();
   const { data: spr, isLoading: isSprLoading, refetch: refetchSpr } = useStrategicPetroleumReserve();
   const { data: recommendations, isLoading: isRecommendationsLoading, refetch: refetchRecommendations } = useGovernmentRecommendations();
+  const { data: events, refetch: refetchEvents } = useOperationalEvents();
+  const { data: healthSources, refetch: refetchHealth } = useDataSourceHealth();
 
   // Setup Supabase Realtime listeners for all Government tables
   useRealtimeTable('national_risk_score', ['national_risk_score']);
@@ -36,11 +42,14 @@ export const GovernmentDashboard: React.FC = () => {
   useRealtimeTable('government_alerts', ['government_alerts']);
   useRealtimeTable('strategic_petroleum_reserve', ['strategic_petroleum_reserve']);
   useRealtimeTable('government_recommendations', ['government_recommendations']);
+  useRealtimeTable('operational_events', ['operational_events']);
+  useRealtimeTable('data_source_health', ['data_source_health']);
 
   const handleApproveRecommendation = async (id: string) => {
     if (!user) return;
     await approveAndForwardRecommendation(id, user.id);
     refetchRecommendations();
+    refetchEvents();
   };
 
   const handleManualRefresh = async () => {
@@ -50,6 +59,8 @@ export const GovernmentDashboard: React.FC = () => {
     refetchAlerts();
     refetchSpr();
     refetchRecommendations();
+    refetchEvents();
+    refetchHealth();
   };
 
   const isPageLoading = isRiskLoading || isSuppliersLoading || isSprLoading;
@@ -59,8 +70,12 @@ export const GovernmentDashboard: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-brand-border/40 pb-4">
         <div>
-          <h2 className="text-xl font-extrabold text-white uppercase tracking-wider">
-            National Energy Security & Reserves Desk
+          <h2 className="text-xl font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+            <span>National Energy Security & Reserves Desk</span>
+            <span className="flex items-center space-x-1 text-[9px] bg-brand-green/10 border border-brand-green/30 px-2 py-0.5 rounded text-brand-green">
+              <span className="h-1.5 w-1.5 rounded-full bg-brand-green animate-pulse" />
+              <span>LIVE SYSTEM</span>
+            </span>
           </h2>
           <p className="text-xs text-brand-muted mt-0.5">
             Classified risk assessment matrix, strategic stockpile controls, and procurement recommendations.
@@ -94,7 +109,7 @@ export const GovernmentDashboard: React.FC = () => {
             <div className="lg:col-span-2 space-y-6">
               <WorldMap suppliers={suppliers} />
               
-              <ReserveCard spr={spr} />
+              <ReserveCard spr={spr} onRefresh={handleManualRefresh} />
               
               <RecommendationPanel
                 recommendations={recommendations}
@@ -103,11 +118,15 @@ export const GovernmentDashboard: React.FC = () => {
               />
             </div>
 
-            {/* Right Column (1/3 width) - AI Analysis Panel & Alerts feed */}
+            {/* Right Column (1/3 width) - AI Analysis Panel, Alerts, Timeline & Health */}
             <div className="space-y-6">
-              <AIRiskPanel insights={insights} isLoading={isInsightsLoading} />
+              <AIRiskPanel insights={insights} isLoading={isInsightsLoading} onRefresh={handleManualRefresh} />
               
               <AlertList alerts={alerts} isLoading={isAlertsLoading} />
+
+              <OperationalTimeline events={events} />
+
+              <DataSourceHealth sources={healthSources} />
             </div>
           </div>
         </div>

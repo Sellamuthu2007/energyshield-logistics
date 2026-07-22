@@ -34,12 +34,13 @@ export interface ShipmentEvent {
 export interface Port {
   id: string;
   port_name: string;
+  country?: string;
   waiting_ships: number;
   available_berths: number;
   average_waiting_time: string;
   congestion_level: 'low' | 'medium' | 'high' | 'critical';
   status: 'green' | 'yellow' | 'red';
-  updated_at: string;
+  updated_at?: string;
 }
 
 export interface WeatherAlert {

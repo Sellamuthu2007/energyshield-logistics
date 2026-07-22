@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import type { UserRole } from '@/constants/roles';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, UserPlus } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const { login } = useAuth();
@@ -19,10 +19,10 @@ export const LoginPage: React.FC = () => {
 
     const { success, error: loginError } = await login(email, password);
     if (success) {
-      // Role should be correctly set from Supabase Profile via the AuthContext
-      // But we can extract it from email for quick nav if needed, or rely on AuthContext role
-      const role = email.split('@')[0] as UserRole;
-      const targetPath = role === 'executive' ? '/decision' : `/${role}`;
+      const roleFromEmail = (email.split('@')[0] as UserRole) || 'government';
+      const validRoles: UserRole[] = ['government', 'procurement', 'shipping', 'refinery', 'executive', 'admin'];
+      const targetRole = validRoles.includes(roleFromEmail) ? roleFromEmail : 'government';
+      const targetPath = targetRole === 'executive' ? '/decision' : `/${targetRole}`;
       navigate(targetPath, { replace: true });
     } else {
       setError(loginError?.message || 'Invalid credentials or system authentication failure.');
@@ -50,8 +50,8 @@ export const LoginPage: React.FC = () => {
     <>
       <style>{`
         .glass-panel {
-            background-color: rgba(18, 23, 33, 0.8);
-            backdrop-filter: blur(12px);
+            background-color: rgba(18, 23, 33, 0.85);
+            backdrop-filter: blur(14px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
@@ -63,7 +63,7 @@ export const LoginPage: React.FC = () => {
             left: 0;
             right: 0;
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(0, 224, 255, 0.3), transparent);
             z-index: 10;
         }
 
@@ -92,23 +92,6 @@ export const LoginPage: React.FC = () => {
 
         .btn-primary-gradient:active {
             transform: scale(0.98);
-        }
-
-        .btn-primary-gradient::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 50%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            animation: shine 3s infinite;
-        }
-
-        @keyframes shine {
-            0% { left: -100%; }
-            20% { left: 200%; }
-            100% { left: 200%; }
         }
 
         .auth-bg {
@@ -141,14 +124,14 @@ export const LoginPage: React.FC = () => {
         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[#00e0ff]/5 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
         <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-[#7000ff]/5 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
         
-        <main className="w-full max-w-[480px] glass-panel rounded-xl p-6 md:p-8 relative overflow-hidden flex flex-col gap-8">
+        <main className="w-full max-w-[480px] glass-panel rounded-xl p-6 md:p-8 relative overflow-hidden flex flex-col gap-6">
           {/* Header */}
           <header className="text-center flex flex-col items-center gap-2">
             <div className="w-12 h-12 rounded-lg bg-[#252a35] border border-white/10 flex items-center justify-center mb-2 shadow-inner relative overflow-hidden">
               <div className="absolute inset-0 bg-[#baf2ff]/10"></div>
               <span className="material-symbols-outlined text-[#00daf8] text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>security</span>
             </div>
-            <h1 className="text-3xl font-bold tracking-tight">EnergyShield AI</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-white">EnergyShield AI</h1>
             <p className="text-sm text-[#bac9cd] uppercase tracking-widest">Enterprise Authentication</p>
           </header>
 
@@ -160,7 +143,7 @@ export const LoginPage: React.FC = () => {
           )}
 
           {/* Login Form */}
-          <form className="flex flex-col gap-4" onSubmit={handleLogin}>
+          <form className="flex flex-col gap-4 text-left" onSubmit={handleLogin}>
             <div className="flex flex-col gap-1">
               <label className="text-xs font-semibold text-[#bac9cd]" htmlFor="email">OPERATIVE ID / EMAIL</label>
               <div className="relative">
@@ -168,7 +151,7 @@ export const LoginPage: React.FC = () => {
                 <input 
                   className="cyber-input w-full h-[48px] rounded-lg pl-10 pr-3 text-base text-[#dee2f1] placeholder:text-[#859397] focus:text-[#00daf8]" 
                   id="email" 
-                  placeholder="admin@energyshield.gov" 
+                  placeholder="government@energyshield.ai" 
                   required 
                   type="email"
                   value={email}
@@ -178,7 +161,7 @@ export const LoginPage: React.FC = () => {
             </div>
             <div className="flex flex-col gap-1">
               <div className="flex justify-between items-center">
-                <label className="text-xs font-semibold text-[#bac9cd]" htmlFor="password">ACCESS TOKEN</label>
+                <label className="text-xs font-semibold text-[#bac9cd]" htmlFor="password">ACCESS TOKEN / PASSWORD</label>
               </div>
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#bac9cd] text-[18px]">key</span>
@@ -203,10 +186,19 @@ export const LoginPage: React.FC = () => {
             </button>
           </form>
 
+          {/* Link to Registration */}
+          <div className="text-center text-xs text-[#bac9cd] pt-1">
+            Don't have an operative account?{' '}
+            <Link to="/signup" className="text-[#00e0ff] font-bold hover:underline inline-flex items-center gap-1">
+              <span>Register Operative</span>
+              <UserPlus className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
           {/* Divider */}
           <div className="flex items-center gap-4 opacity-50">
             <div className="h-px bg-[#3b494c] flex-1"></div>
-            <span className="text-xs text-[#bac9cd] uppercase">Select Portal</span>
+            <span className="text-xs text-[#bac9cd] uppercase">Quick Portal Access</span>
             <div className="h-px bg-[#3b494c] flex-1"></div>
           </div>
 

@@ -33,52 +33,62 @@ export const SupplierCards: React.FC<Props> = ({ suppliers, isLoading }) => {
       </h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {suppliers.map((supplier) => (
-          <motion.div
-            key={supplier.id}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className={`rounded border border-brand-border bg-brand-card p-5 relative overflow-hidden group hover:border-${supplier.supplier_status}-400/50 transition-colors`}
-          >
-            {/* Top Right Status Indicator */}
-            <div className="absolute top-0 right-0 p-3">
-              <span className={`w-3 h-3 rounded-full block shadow-[0_0_8px_currentColor] ${statusColors[supplier.supplier_status].split(' ')[0]}`} />
-            </div>
+        {suppliers.map((supplier) => {
+          const riskLevel = supplier.geopolitical_risk || 'green';
+          const statusStyle = statusColors[riskLevel as keyof typeof statusColors] || statusColors.green;
+          const price = supplier.price_per_barrel ?? 75.0;
+          const deliveryDays = supplier.delivery_time_days ?? 7;
+          const capacity = supplier.supply_capacity ?? 4000000;
+          const supplierName = supplier.supplier_name || supplier.country;
 
-            <h4 className="text-lg font-bold text-white mb-4">{supplier.country}</h4>
-            
-            <div className="space-y-3">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-brand-muted font-semibold">Current Price</span>
-                <span className="text-brand-text font-bold">${supplier.current_price.toFixed(2)}/bbl</span>
-              </div>
-              
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-brand-muted font-semibold">Capacity</span>
-                <span className="text-brand-text font-bold">{(supplier.supply_capacity / 1000000).toFixed(1)}M bbl/d</span>
+          return (
+            <motion.div
+              key={supplier.id}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className={`rounded border border-brand-border bg-brand-card p-5 relative overflow-hidden group hover:border-brand-teal/50 transition-colors`}
+            >
+              {/* Top Right Status Indicator */}
+              <div className="absolute top-0 right-0 p-3">
+                <span className={`w-3 h-3 rounded-full block shadow-[0_0_8px_currentColor] ${statusStyle.split(' ')[0]}`} />
               </div>
 
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-brand-muted font-semibold">Delivery Time</span>
-                <span className="text-brand-text font-bold flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {supplier.delivery_time} days
-                </span>
-              </div>
+              <h4 className="text-lg font-bold text-white mb-1">{supplierName}</h4>
+              <p className="text-xs text-brand-muted mb-4">{supplier.country}</p>
               
-              <div className="flex justify-between items-center text-sm pt-2 border-t border-brand-border/40">
-                <span className="text-brand-muted font-semibold">Risk & Reliability</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs uppercase tracking-wider font-bold text-brand-muted flex items-center gap-1">
-                    {supplier.geopolitical_risk === 'low' ? <CheckCircle className="w-3 h-3 text-green-400" /> : <AlertTriangle className="w-3 h-3 text-yellow-400" />}
-                    {supplier.geopolitical_risk}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-brand-muted font-semibold">Current Price</span>
+                  <span className="text-brand-text font-bold">${price.toFixed(2)}/bbl</span>
+                </div>
+                
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-brand-muted font-semibold">Capacity</span>
+                  <span className="text-brand-text font-bold">{(capacity / 1000000).toFixed(1)}M bbl/d</span>
+                </div>
+
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-brand-muted font-semibold">Delivery Time</span>
+                  <span className="text-brand-text font-bold flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-brand-teal" />
+                    {deliveryDays} days
                   </span>
-                  <span className="text-brand-text font-bold bg-[#1a2130] px-2 py-0.5 rounded">{supplier.reliability_score}%</span>
+                </div>
+                
+                <div className="flex justify-between items-center text-sm pt-2 border-t border-brand-border/40">
+                  <span className="text-brand-muted font-semibold">Risk & Reliability</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs uppercase tracking-wider font-bold text-brand-muted flex items-center gap-1">
+                      {riskLevel === 'green' ? <CheckCircle className="w-3 h-3 text-green-400" /> : <AlertTriangle className="w-3 h-3 text-yellow-400" />}
+                      {riskLevel}
+                    </span>
+                    <span className="text-brand-text font-bold bg-[#1a2130] px-2 py-0.5 rounded">{supplier.reliability_score || 90}%</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          );
+        })}
       </div>
     </div>
   );

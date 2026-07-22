@@ -9,9 +9,9 @@ interface Props {
 }
 
 const statusConfig = {
-  'Recommended': { icon: CheckCircle, color: 'text-green-400', bg: 'bg-green-400/10', border: 'border-green-400/20' },
+  Recommended: { icon: CheckCircle, color: 'text-green-400', bg: 'bg-green-400/10', border: 'border-green-400/20' },
   'Not Recommended': { icon: AlertOctagon, color: 'text-red-400', bg: 'bg-red-400/10', border: 'border-red-400/20' },
-  'Warning': { icon: ShieldAlert, color: 'text-yellow-400', bg: 'bg-yellow-400/10', border: 'border-yellow-400/20' },
+  Warning: { icon: ShieldAlert, color: 'text-yellow-400', bg: 'bg-yellow-400/10', border: 'border-yellow-400/20' },
 };
 
 export const CompatibilityPanel: React.FC<Props> = ({ compatibilities, isLoading }) => {
@@ -27,7 +27,7 @@ export const CompatibilityPanel: React.FC<Props> = ({ compatibilities, isLoading
   }
 
   return (
-    <div className="rounded border border-brand-border bg-brand-card p-6 shadow-lg shadow-black/20">
+    <div className="rounded border border-brand-border bg-brand-card p-6 shadow-lg shadow-black/20 text-left">
       <h3 className="text-lg font-bold text-white uppercase tracking-wider flex items-center gap-2 mb-4">
         <Beaker className="w-5 h-5 text-brand-teal" />
         Crude Compatibility Analysis
@@ -35,8 +35,10 @@ export const CompatibilityPanel: React.FC<Props> = ({ compatibilities, isLoading
 
       <div className="space-y-3">
         {compatibilities.map((comp) => {
-          const config = statusConfig[comp.status];
+          const statusKey = comp.status || (comp.compatibility_score >= 90 ? 'Recommended' : comp.compatibility_score >= 80 ? 'Warning' : 'Not Recommended');
+          const config = statusConfig[statusKey] || statusConfig.Recommended;
           const Icon = config.icon;
+
           return (
             <motion.div
               key={comp.id}
@@ -45,12 +47,15 @@ export const CompatibilityPanel: React.FC<Props> = ({ compatibilities, isLoading
               className={`p-4 rounded border ${config.bg} ${config.border} flex flex-col md:flex-row md:items-center justify-between gap-4`}
             >
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-full bg-[#0e131d] shadow-inner`}>
+                <div className="p-2 rounded-full bg-[#0e131d] shadow-inner">
                   <Icon className={`w-5 h-5 ${config.color}`} />
                 </div>
                 <div>
                   <h4 className="text-brand-text font-bold text-base">{comp.refinery_name}</h4>
                   <p className="text-sm text-brand-muted">Target: <span className="text-brand-text font-semibold">{comp.crude_type}</span></p>
+                  {comp.recommendation && (
+                    <p className="text-xs text-brand-muted/80 mt-0.5">{comp.recommendation}</p>
+                  )}
                 </div>
               </div>
 

@@ -3,13 +3,14 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import PublicLayout from '@/layouts/PublicLayout';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import ProtectedRoute from './ProtectedRoute';
-import LandingPage from '@/pages/Landing';
-import LoginPage from '@/pages/Login';
-import GovernmentDashboard from '@/pages/GovernmentDashboard';
-import ProcurementDashboard from '@/pages/ProcurementDashboard';
-import ShippingDashboard from '@/pages/ShippingDashboard';
-import RefineryDashboard from '@/pages/RefineryDashboard';
-import DecisionDashboard from '@/pages/DecisionDashboard';
+import LandingPage from '@/pages/Landing/LandingPage';
+import LoginPage from '@/pages/Login/LoginPage';
+import SignUpPage from '@/pages/SignUp/SignUpPage';
+import GovernmentDashboard from '@/pages/GovernmentDashboard/GovernmentDashboard';
+import ProcurementDashboard from '@/pages/ProcurementDashboard/ProcurementDashboard';
+import ShippingDashboard from '@/pages/ShippingDashboard/ShippingDashboard';
+import RefineryDashboard from '@/pages/RefineryDashboard/RefineryDashboard';
+import DecisionDashboard from '@/pages/DecisionDashboard/DecisionDashboard';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -18,6 +19,7 @@ export const AppRoutes: React.FC = () => {
       <Route element={<PublicLayout />}>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
       </Route>
 
       {/* Protected Dashboard Routes */}

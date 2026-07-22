@@ -19,7 +19,7 @@ export interface IncomingShipment {
   expected_arrival: string;
   quantity: number;
   status: IncomingShipmentStatus;
-  created_at: string;
+  created_at?: string;
 }
 
 export interface ProductionPlan {
